@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Allows the robot to create a public download link
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,7 +36,9 @@ jobs:
           PROJECT_DIR=$(dirname "$GRADLE_PATH")
           cd "$PROJECT_DIR"
           chmod +x gradlew
-          ./gradlew assembleRelease
+          
+          # This builds the version your phone will actually allow
+          ./gradlew assembleDebug
 
       - name: Create Direct Phone Download Link
         uses: softprops/action-gh-release@v2

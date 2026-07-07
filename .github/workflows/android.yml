@@ -5,6 +5,8 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allows the robot to create a public download link
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,7 +19,6 @@ jobs:
 
       - name: Unzip project files
         run: |
-          # Unzip any zip file found in the repository
           for f in *.zip; do
             if [ -f "$f" ]; then
               echo "Unzipping $f..."
@@ -27,26 +28,20 @@ jobs:
 
       - name: Find and Build App
         run: |
-          # Search everywhere for the gradlew file
           GRADLE_PATH=$(find . -name "gradlew" | head -n 1)
-          
           if [ -z "$GRADLE_PATH" ]; then
-            echo "ERROR: gradlew file is completely missing from your zip files!"
+            echo "ERROR: gradlew file missing!"
             exit 1
           fi
-          
-          # Get the folder name where gradlew is hiding and go inside it
           PROJECT_DIR=$(dirname "$GRADLE_PATH")
-          echo "Found your code hiding in: $PROJECT_DIR"
           cd "$PROJECT_DIR"
-          
-          # Make it executable and build the app
           chmod +x gradlew
           ./gradlew assembleRelease
 
-      - name: Upload APK
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Create Direct Phone Download Link
+        uses: softprops/action-gh-release@v2
         with:
-          name: finished-android-app
-          path: '**/*.apk'
+          tag_name: "latest-build"
+          name: "Download Your App Here"
+          make_latest: "true"
+          files: "**/*.apk"

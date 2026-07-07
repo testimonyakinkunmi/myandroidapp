@@ -9,6 +9,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Unzip project files
+        run: |
+          # This unzips both files if they exist
+          if [ -f "my-android-app.zip" ]; then unzip -o my-android-app.zip; fi
+          if [ -f "app.zip" ]; then unzip -o app.zip -d app; fi
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
